@@ -1,0 +1,7 @@
+.uilib .tab {
+	display: none;
+}
+
+.uilib .tab .active {
+	display: inherit;
+}

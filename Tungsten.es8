@@ -1,0 +1,87 @@
+// has implicit rational/complex
+
+class Ratplex {
+	rational real = 0;
+	rational imaginary = 0;
+}
+
+class Quarternion {
+	num one = 0; //TODO: default num type
+	num i = 0;
+	num j = 0;
+	num k = 0;
+
+	constructor(public s: string) {
+		var parts = one.split(/\+|(?=-)/).map(function(_) { return _.trim(); });
+		for (let part of parts) {
+			if (/i/.test(part))
+				this.i += part === 'i' ? 1 : part === '-i' ? -1 : parseFloat(part.replace(/i/, ''));
+			else if (/j/.test(part))
+				this.j += part === 'j' ? 1 : part === '-j' ? -1 : parseFloat(part.replace(/j/, ''));
+			else if (/k/.test(part))
+				this.k += part === 'k' ? 1 : part === '-k' ? -1 : parseFloat(part.replace(/k/, ''));
+			else
+				this.one += parseFloat(part);
+		}
+	}
+
+	magnitude() {
+		return Math.sqrt(this.one * this.one + this.i * this.i + this.j * this.j + this.k * this.k);
+	}
+}
+
+(() => {
+	function Add(Quarternion left, Quarternion right) {
+		return new Quarternion(left.one + right.one, left.i + right.i, left.j + right.j, left.k + right.k);
+	}
+	function Subtract(Quarternion left, Quarternion right) {
+		return new Quarternion(left.one - right.one, left.i - right.i, left.j - right.j, left.k - right.k);
+	}
+	function Multiply(Quarternion left, Quarternion right) {
+		return new Quarternion(left.one * right.one - left.i * right.i - left.j * right.j - left.k * right.k,
+			left.j * right.k - left.k * right.j,
+			left.k * right.i - left.i * right.k,
+			left.i * right.j - left.j * right.i);
+	}
+	Function.defineOperator('+', Add, Quarternion, Quarternion);
+	Function.defineOperator('-', Subtract, Quarternion, Quarternion);
+	Function.defineOperator('*', Multiply, Quarternion, Quarternion);
+})();
+
+(() => {
+	function Add(Quarternion right, num right) {
+		return new Quarternion(left + right.one, right.i, right.j, right.k);
+	}
+	function Subtract(Quarternion right, num left) {
+		return new Quarternion(-left + right.one, right.i, right.j, right.k);
+	}
+	function Multiply(Quarternion left, num right) {
+		return new Quarternion(left.one * right, left.i * right, left.j * right, left.k * right);
+	}
+	function Divide(Quarternion left, num right) {
+		return new Quarternion(left.one / right, left.i / right, left.j / right, left.k / right);
+	}
+	Function.defineOperator('+', Add, Quarternion, num);
+	Function.defineOperator('-', Subtract, Quarternion, num);
+	Function.defineOperator('*', Multiply, Quarternion, num);
+	Function.defineOperator('/', Divide, Quarternion, num);
+})();
+
+(() => {
+	function Add(num left, Quarternion right) {
+		return new Quarternion(left + right.one, right.i, right.j, right.k);
+	}
+	function Subtract(num left, Quarternion right) {
+		return new Quarternion(left - right.one, -right.i, -right.j, -right.k);
+	}
+	Function.defineOperator('+', Add, num, Quarternion);
+	Function.defineOperator('-', Subtract, num, Quarternion);
+})();
+
+function Plus(...args) {
+	return args.reduce((p, c) => p + c, 0);
+}
+
+function Times(...args) {
+	return args.reduce((p, c) => p * c, 0);
+}
